@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>安安土雞城 · 員工</title>
+<style>
+:root{
+  --bg:#f5f4f1;--sur:#fff;--sur2:#f0ede8;--bd:rgba(0,0,0,0.08);--bd2:rgba(0,0,0,0.15);
+  --tx:#1a1a18;--tx2:#6b6a65;--tx3:#9a9994;
+  --acc:#b85c0a;--acc-bg:#fff3ee;
+  --gr:#2a7a3b;--gr-bg:#edf7ef;
+  --am:#a05c00;--am-bg:#fff8ec;
+  --bl:#1756a8;--bl-bg:#eef4fd;
+  --re:#b52828;--re-bg:#fdf0f0;
+  --r:12px;--rs:8px;--nav:64px;--hdr:56px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#161614;--sur:#1f1f1c;--sur2:#2a2a27;--bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.15);
+  --tx:#e8e7e3;--tx2:#9a9890;--tx3:#66655f;
+  --acc:#e8722a;--acc-bg:#2a1a12;
+  --gr:#4aaa5c;--gr-bg:#111f14;
+  --am:#d48a2a;--am-bg:#1e1608;
+  --bl:#5a9ae8;--bl-bg:#0e1a2e;
+  --re:#e05050;--re-bg:#200e0e;
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'PingFang TC','Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg)}
+#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.login-logo{width:72px;height:72px;background:var(--acc-bg);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:18px}
+.login-title{font-size:24px;font-weight:700;margin-bottom:4px;text-align:center}
+.login-sub{font-size:14px;color:var(--tx2);margin-bottom:28px}
+.login-card{width:100%;background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--r);padding:22px}
+.f-lbl{font-size:13px;color:var(--tx2);margin-bottom:6px;display:block}
+.emp-select{width:100%;padding:12px 14px;border:0.5px solid var(--bd2);border-radius:var(--rs);background:var(--sur2);color:var(--tx);font-size:16px;margin-bottom:16px;-webkit-appearance:none}
+.pin-lbl{font-size:13px;color:var(--tx2);margin-bottom:10px;display:block}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:20px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--bd2);background:transparent;transition:all .15s}
+.pin-dot.filled{background:var(--acc);border-color:var(--acc)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.num-btn{padding:16px 0;border-radius:var(--rs);border:0.5px solid var(--bd);background:var(--sur2);color:var(--tx);font-size:20px;font-weight:500;cursor:pointer;transition:background .1s,transform .08s;text-align:center}
+.num-btn:active{background:var(--bd2);transform:scale(.95)}
+.num-btn.del{font-size:16px;color:var(--tx2)}
+.login-btn{width:100%;padding:14px;border-radius:var(--rs);border:none;background:var(--acc);color:#fff;font-size:16px;font-weight:600;cursor:pointer;opacity:.4;transition:opacity .2s}
+.login-btn.ready{opacity:1}
+.login-hint{font-size:12px;color:var(--tx3);text-align:center;margin-top:12px}
+#app-shell{display:none}
+.header{height:var(--hdr);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--sur);border-bottom:0.5px solid var(--bd);position:sticky;top:0;z-index:10}
+.header-title{font-size:17px;font-weight:600}
+.header-sub{font-size:12px;color:var(--tx3);margin-top:1px}
+.avatar-btn{width:36px;height:36px;border-radius:50%;background:var(--acc-bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--acc)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav);background:var(--sur);border-top:0.5px solid var(--bd);display:flex;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--tx3);font-size:10px;transition:color .15s;padding:6px 0}
+.nav-item.active{color:var(--acc)}
+.nav-icon{font-size:22px;line-height:1}
+.page{display:none;padding:0 0 calc(var(--nav) + 16px)}
+.page.active{display:block}
+.sec{padding:14px 16px 0}
+.sec-label{font-size:12px;font-weight:600;color:var(--tx3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.card{background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.card-body{padding:14px 16px}
+.crow{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--bd)}
+.crow:last-child{border-bottom:none}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap}
+.b-gr{background:var(--gr-bg);color:var(--gr)}.b-am{background:var(--am-bg);color:var(--am)}
+.b-bl{background:var(--bl-bg);color:var(--bl)}.b-re{background:var(--re-bg);color:var(--re)}.b-gy{background:var(--sur2);color:var(--tx2)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px 0}
+.metric{background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--rs);padding:12px 14px}
+.metric-val{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
+.metric-label{font-size:12px;color:var(--tx2)}
+.punch-hero{margin:14px 16px 10px;background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--r);padding:24px 20px;text-align:center}
+.punch-clock{font-size:48px;font-weight:300;letter-spacing:-1px;margin-bottom:2px;font-variant-numeric:tabular-nums}
+.punch-date{font-size:13px;color:var(--tx2);margin-bottom:20px}
+.punch-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.punch-btn{padding:16px;border-radius:var(--rs);border:none;cursor:pointer;font-size:15px;font-weight:600;transition:opacity .15s,transform .1s}
+.punch-btn:active{transform:scale(.97);opacity:.8}
+.p-in{background:var(--gr-bg);color:var(--gr)}.p-out{background:var(--re-bg);color:var(--re)}
+.gps-bar{margin:0 16px 14px;display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--rs);font-size:13px}
+.gps-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--gr);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.f-input{width:100%;padding:11px 14px;border:0.5px solid var(--bd2);border-radius:var(--rs);background:var(--sur2);color:var(--tx);font-size:15px;-webkit-appearance:none;margin-bottom:10px}
+.f-input:focus{outline:none;border-color:var(--acc)}
+.f-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.submit-btn{width:100%;padding:14px;border-radius:var(--rs);border:none;background:var(--acc);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;transition:opacity .15s}
+.submit-btn:active{opacity:.85}
+.sch-wrap{overflow-x:auto;padding:14px 16px}
+.sch-tbl{width:100%;border-collapse:separate;border-spacing:3px;min-width:300px}
+.sch-th{font-size:11px;font-weight:600;color:var(--tx3);text-align:center;padding:4px 2px}
+.sch-nm{font-size:12px;font-weight:600;padding:4px 6px 4px 0;white-space:nowrap;color:var(--acc)}
+.sch-nm-o{font-size:11px;padding:4px 6px 4px 0;white-space:nowrap;color:var(--tx3)}
+.sc{padding:5px 2px;text-align:center;border-radius:6px;font-size:11px;font-weight:500}
+.sc-am{background:var(--bl-bg);color:var(--bl)}.sc-pm{background:var(--gr-bg);color:var(--gr)}
+.sc-off{background:var(--sur2);color:var(--tx3)}.sc-lv{background:var(--am-bg);color:var(--am)}.sc-me{outline:2px solid var(--acc)}
+.red-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--re);border:1.5px solid var(--sur)}
+.nav-rel{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;padding:0 16px 10px}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.sal-result{background:var(--sur);border:0.5px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-top:12px}
+.sal-line{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:0.5px solid var(--bd);font-size:14px}
+.sal-line:last-child{border-bottom:none;background:var(--sur2)}
+.sal-lbl{color:var(--tx2)}
+.toast{position:fixed;bottom:calc(var(--nav) + 12px);left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a18;color:#faf9f7;padding:10px 20px;border-radius:20px;font-size:13px;white-space:nowrap;z-index:200;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:88%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+<div id="login-screen">
+  <div class="login-logo">🐔</div>
+  <div class="login-title">安安土雞城</div>
+  <div class="login-sub">員工系統</div>
+  <div class="login-card">
+    <label class="f-lbl">選擇你的帳號</label>
+    <select class="emp-select" id="emp-select"><option value="">-- 請選擇 --</option></select>
+    <span class="pin-lbl">輸入 4 位數 PIN 碼</span>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="numpad">
+      <button class="num-btn" onclick="pressNum('1')">1</button><button class="num-btn" onclick="pressNum('2')">2</button><button class="num-btn" onclick="pressNum('3')">3</button>
+      <button class="num-btn" onclick="pressNum('4')">4</button><button class="num-btn" onclick="pressNum('5')">5</button><button class="num-btn" onclick="pressNum('6')">6</button>
+      <button class="num-btn" onclick="pressNum('7')">7</button><button class="num-btn" onclick="pressNum('8')">8</button><button class="num-btn" onclick="pressNum('9')">9</button>
+      <button class="num-btn"></button><button class="num-btn" onclick="pressNum('0')">0</button><button class="num-btn del" onclick="delNum()">⌫</button>
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">登入</button>
+    <div class="login-hint">PIN 碼由主管設定，如忘記請聯絡主管</div>
+  </div>
+</div>
+
+<div id="app-shell">
+  <div class="header">
+    <div><div class="header-title" id="page-title">今日狀況</div><div class="header-sub">安安土雞城 · 員工</div></div>
+    <button class="avatar-btn" id="hdr-av">？</button>
+  </div>
+
+  <div class="page active" id="page-home">
+    <div class="metrics">
+      <div class="metric"><div class="metric-val" style="color:var(--gr)" id="m-hours">—</div><div class="metric-label">本月工時 h</div></div>
+      <div class="metric"><div class="metric-val" style="color:var(--bl)">7</div><div class="metric-label">特休剩餘 天</div></div>
+      <div class="metric"><div class="metric-val" style="font-size:13px;color:var(--tx2);padding-top:4px">預估實領</div><div class="metric-label" id="m-sal" style="font-size:18px;font-weight:700;color:var(--gr);margin-top:2px">—</div></div>
+      <div class="metric"><div class="metric-val">0</div><div class="metric-label">本月遲到</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-label">今日班次</div>
+      <div class="card"><div class="card-body">
+        <div style="font-size:22px;font-weight:700;margin-bottom:4px">早班 09:00 — 17:00</div>
+        <div style="font-size:13px;color:var(--tx2)">今天</div>
+        <div style="margin-top:10px;display:flex;gap:8px"><span class="badge b-gr">✓ 上班 09:02</span><span class="badge b-bl">尚未下班打卡</span></div>
+      </div></div>
+      <div class="sec-label">近期請假</div>
+      <div class="card">
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">病假 · 6/15</div><div style="font-size:12px;color:var(--tx2)">1天</div></div><span class="badge b-am">審核中</span></div>
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">特休 · 5/20–21</div><div style="font-size:12px;color:var(--tx2)">2天</div></div><span class="badge b-gr">已核准</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-punch">
+    <div class="punch-hero">
+      <div class="punch-clock" id="clock">--:--:--</div>
+      <div class="punch-date" id="cdate">載入中...</div>
+      <div class="punch-btns">
+        <button class="punch-btn p-in" id="btn-in" onclick="doPunch('in')">📍 上班打卡</button>
+        <button class="punch-btn p-out" id="btn-out" onclick="doPunch('out')">🏃 下班打卡</button>
+      </div>
+    </div>
+    <div class="gps-bar" id="gps-bar">
+      <div class="gps-dot" id="gps-dot"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--tx2)" id="gps-text">GPS 定位中...</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px" id="gps-addr"></div>
+      </div>
+    </div>
+    <div id="gps-warn" style="display:none;margin:0 16px 14px;padding:10px 14px;background:var(--re-bg);border:0.5px solid var(--re);border-radius:var(--rs);font-size:13px;color:var(--re)"></div>
+    <div class="sec">
+      <div class="sec-label">今日紀錄</div>
+      <div class="card" id="punch-log"><div class="card-body" style="color:var(--tx3);font-size:13px;text-align:center;padding:20px">尚無紀錄</div></div>
+      <div class="sec-label">本週</div>
+      <div class="card">
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">週一</div><div style="font-size:12px;color:var(--tx2)">09:02 — 17:58</div></div><span class="badge b-gr">8h 56m</span></div>
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">週二</div><div style="font-size:12px;color:var(--tx2)">09:10 — 18:05</div></div><span class="badge b-gr">8h 55m</span></div>
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">週三 · 今天</div><div style="font-size:12px;color:var(--tx2)">09:02 — 進行中</div></div><span class="badge b-bl">進行中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-leave">
+    <div class="sec" style="padding-top:14px">
+      <div class="sec-label">假別餘額</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+        <div class="metric"><div class="metric-val" style="font-size:20px">7</div><div class="metric-label">特休（天）</div></div>
+        <div class="metric"><div class="metric-val" style="font-size:20px">3</div><div class="metric-label">事假（天）</div></div>
+        <div class="metric"><div class="metric-val" style="font-size:20px">30</div><div class="metric-label">病假（天）</div></div>
+      </div>
+      <div class="sec-label">申請請假</div>
+      <div class="card"><div class="card-body">
+        <div style="margin-bottom:12px"><label class="f-lbl">假別</label><select class="f-input"><option>特休假</option><option>事假</option><option>病假</option><option>婚假</option><option>喪假</option></select></div>
+        <div class="f-row2" style="margin-bottom:12px">
+          <div><label class="f-lbl">開始日期</label><input type="date" class="f-input" id="ls"></div>
+          <div><label class="f-lbl">結束日期</label><input type="date" class="f-input" id="le"></div>
+        </div>
+        <div style="margin-bottom:12px"><label class="f-lbl">備註（選填）</label><input type="text" class="f-input" placeholder="例：回診、家庭因素"></div>
+        <button class="submit-btn" onclick="submitLeave()">送出申請</button>
+      </div></div>
+      <div class="sec-label">申請紀錄</div>
+      <div class="card">
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">病假 · 6/15</div><div style="font-size:12px;color:var(--tx2)">1天</div></div><span class="badge b-am">審核中</span></div>
+        <div class="crow"><div style="flex:1"><div style="font-size:13px;font-weight:500">特休 · 5/20–21</div><div style="font-size:12px;color:var(--tx2)">2天</div></div><span class="badge b-gr">已核准</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-schedule">
+    <div class="sec" style="padding-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="sec-label" style="margin-bottom:0">本週班表</span>
+        <span style="font-size:11px;color:var(--tx3)" id="sch-updated-label">—</span>
+      </div>
+      <div id="sch-new-banner" style="display:none;background:var(--re-bg);border:0.5px solid var(--re);border-radius:var(--rs);padding:8px 12px;font-size:13px;color:var(--re);margin-bottom:10px">
+        🆕 主管剛更新了班表，請查看你的班次
+      </div>
+    </div>
+    <div id="sch-wrap" style="padding:0 16px"></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--bl-bg);border:1px solid var(--bl)"></div>早班 09–17</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--gr-bg);border:1px solid var(--gr)"></div>晚班 14–22</div>
+      <div class="leg-item"><div class="leg-dot" style="border:2px solid var(--acc)"></div>我的班次</div>
+    </div>
+  </div>
+
+  <div class="page" id="page-salary">
+    <div class="sec" style="padding-top:14px">
+      <div class="sec-label">我的薪資 · 本月預估</div>
+      <div class="card"><div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <span style="font-size:15px;font-weight:600" id="sal-name">—</span>
+          <span style="font-size:12px;color:var(--tx2)" id="sal-rate-lbl">—</span>
+        </div>
+        <div style="background:var(--sur2);border-radius:6px;height:6px;overflow:hidden;margin-bottom:4px">
+          <div style="width:79%;height:100%;background:var(--gr);border-radius:6px"></div>
+        </div>
+        <div style="font-size:11px;color:var(--tx3)">本月進度 79%（142 / 180 工時）</div>
+      </div></div>
+      <div class="sal-result">
+        <div class="sal-line"><span class="sal-lbl" id="sal-base-lbl">底薪</span><span id="s-base">—</span></div>
+        <div class="sal-line"><span class="sal-lbl">加班費（2h × 1.34倍）</span><span style="color:var(--gr)" id="s-ot">—</span></div>
+        <div class="sal-line"><span class="sal-lbl">勞保（員工 2.21%）</span><span style="color:var(--re)" id="s-labor">—</span></div>
+        <div class="sal-line"><span class="sal-lbl">健保（員工 2.35%）</span><span style="color:var(--re)" id="s-health">—</span></div>
+        <div class="sal-line"><span style="font-weight:600">預估實領</span><span style="font-weight:700;font-size:18px;color:var(--gr)" id="s-net">—</span></div>
+      </div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:8px;padding:0 4px">* 最終金額以主管確認為準</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active" id="nav-home" onclick="showPage('home','今日狀況')"><span class="nav-icon">🏠</span><span>首頁</span></button>
+    <button class="nav-item" id="nav-punch" onclick="showPage('punch','打卡')"><span class="nav-icon">⏱</span><span>打卡</span></button>
+    <button class="nav-item" id="nav-leave" onclick="showPage('leave','請假')"><span class="nav-icon">📅</span><span>請假</span></button>
+    <button class="nav-item" id="nav-schedule" onclick="showPage('schedule','班表');clearScheduleBadge()">
+      <div class="nav-rel"><span class="nav-icon">🗓</span><span>班表</span><div class="red-dot" id="sch-dot" style="display:none"></div></div>
+    </button>
+    <button class="nav-item" id="nav-salary" onclick="showPage('salary','我的薪資')"><span class="nav-icon">💰</span><span>薪資</span></button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const STORE_KEY = 'anan_emp_data';
+const DEFAULT_EMP = [
+  {name:'蔡雅婷',pin:'1234',type:'hourly',rate:190,hours:142,ot:2},
+  {name:'黃彥翔',pin:'2345',type:'hourly',rate:195,hours:138,ot:0},
+  {name:'林淑芬',pin:'3456',type:'monthly',rate:30000,hours:136,ot:0},
+  {name:'陳建志',pin:'4567',type:'hourly',rate:200,hours:140,ot:4},
+  {name:'王怡君',pin:'5678',type:'monthly',rate:28000,hours:144,ot:0},
+  {name:'吳宗翰',pin:'6789',type:'hourly',rate:185,hours:132,ot:0},
+];
+
+function loadEmps() {
+  try { const d = localStorage.getItem(STORE_KEY); return d ? JSON.parse(d) : DEFAULT_EMP; }
+  catch(e) { return DEFAULT_EMP; }
+}
+
+// schedule data is now date-keyed in localStorage
+
+let pinInput='', currentUser=null, currentIdx=-1;
+const pages=['home','punch','leave','schedule','salary'];
+
+function buildEmpSelect() {
+  const emps = loadEmps();
+  const sel = document.getElementById('emp-select');
+  sel.innerHTML = '<option value="">-- 請選擇 --</option>' +
+    emps.map((e,i) => `<option value="${i}">${e.name}</option>`).join('');
+}
+
+function pressNum(n) {
+  if(!n || pinInput.length>=4) return;
+  pinInput+=n; updateDots();
+  if(pinInput.length===4) document.getElementById('login-btn').classList.add('ready');
+}
+function delNum() {
+  pinInput=pinInput.slice(0,-1);
+  document.getElementById('login-btn').classList.remove('ready');
+  updateDots();
+}
+function updateDots() {
+  for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinInput.length);
+}
+
+function doLogin() {
+  const idx = parseInt(document.getElementById('emp-select').value);
+  if(isNaN(idx)||idx<0){showToast('請先選擇帳號');return}
+  if(pinInput.length<4){showToast('請輸入 4 位 PIN 碼');return}
+  const emps = loadEmps();
+  const emp = emps[idx];
+  if(!emp||emp.pin!==pinInput){
+    showToast('PIN 碼錯誤，請重試');
+    pinInput='';updateDots();
+    document.getElementById('login-btn').classList.remove('ready');
+    return;
+  }
+  currentUser=emp; currentIdx=idx;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-shell').style.display='block';
+  document.getElementById('hdr-av').textContent=emp.name[0];
+  updateSalary(emp);
+  buildScheduleForEmp(idx);
+  showToast('歡迎回來，'+emp.name+' 👋');
+  checkScheduleBadge();
+  buildLeaveHistory_staff();
+  initGPS();
+}
+
+function updateSalary(emp) {
+  const hours=emp.hours||142, ot=emp.ot||0;
+  let base,otPay;
+  if(emp.type==='hourly'){base=emp.rate*hours;otPay=Math.round(emp.rate*1.34*ot);}
+  else{base=emp.rate;otPay=Math.round((emp.rate/240)*1.34*ot);}
+  const gross=base+otPay;
+  const labor=Math.round(gross*0.0221), health=Math.round(gross*0.0235);
+  const net=gross-labor-health;
+  const fmt=n=>'NT$ '+Math.round(n).toLocaleString('zh-TW');
+  document.getElementById('sal-name').textContent=emp.name;
+  document.getElementById('sal-rate-lbl').textContent=emp.type==='hourly'?`時薪 ${emp.rate} 元`:`月薪 ${emp.rate.toLocaleString()} 元`;
+  document.getElementById('sal-base-lbl').textContent=emp.type==='hourly'?`底薪（${hours}h × ${emp.rate}）`:'月薪底薪';
+  document.getElementById('s-base').textContent=fmt(base);
+  document.getElementById('s-ot').textContent='+ '+fmt(otPay);
+  document.getElementById('s-labor').textContent='− '+fmt(labor);
+  document.getElementById('s-health').textContent='− '+fmt(health);
+  document.getElementById('s-net').textContent=fmt(net);
+  document.getElementById('m-hours').textContent=hours;
+  document.getElementById('m-sal').textContent=fmt(net);
+}
+
+function buildScheduleForEmp(myIdx) {
+  const emps   = loadEmps();
+  const now    = new Date();
+  const year   = now.getFullYear();
+  const month  = now.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
+
+  // Load date-keyed schedule from admin
+  let data = {};
+  try{ const d=localStorage.getItem('anan_schedule'); data=d?JSON.parse(d):{}; }catch(e){}
+
+  function getCell(day, empIdx){
+    const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}:${empIdx}`;
+    return data[k]||'off';
+  }
+
+  const wrap = document.getElementById('sch-wrap') || document.getElementById('sch-body')?.closest('.sch-wrap');
+  const container = document.getElementById('sch-wrap') || document.getElementById('sch-body')?.parentElement;
+  if(!container) return;
+
+  let html = '<div style="overflow-x:auto;padding:0 0 8px">';
+  html += '<table style="border-collapse:separate;border-spacing:2px;min-width:max-content">';
+
+  // Header row
+  html += '<thead><tr>';
+  html += '<th style="min-width:40px;font-size:11px;color:var(--tx3);text-align:left;padding:0 6px 4px 0">—</th>';
+  for(let d=1; d<=daysInMonth; d++){
+    const dow = (firstDow+d-1)%7;
+    const isWeekend = dow>=5;
+    const isToday = d===now.getDate();
+    const dowLabel = ['一','二','三','四','五','六','日'][dow];
+    html += `<th style="min-width:26px;width:26px;text-align:center;padding:0 0 2px;font-size:10px">
+      <div style="color:${isWeekend?'var(--am)':'var(--tx3)'}">${dowLabel}</div>
+      <div style="font-size:11px;font-weight:500;color:${isToday?'var(--acc)':isWeekend?'var(--am)':'var(--tx2)'};${isToday?'border-bottom:2px solid var(--acc)':''}">${d}</div>
+    </th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  // Rows: only show current employee prominently, others dimmed
+  emps.forEach((e, r) => {
+    const isMe = r===myIdx;
+    html += `<tr>`;
+    html += `<td style="font-size:${isMe?12:10}px;font-weight:${isMe?600:400};padding:2px 6px 2px 0;white-space:nowrap;color:${isMe?'var(--acc)':'var(--tx3)'}">${isMe?'我':e.name.slice(0,2)}</td>`;
+    for(let d=1; d<=daysInMonth; d++){
+      const c = getCell(d, r);
+      const highlight = isMe && (c==='am'||c==='pm');
+      const opacity = isMe?1:0.4;
+      html += `<td class="sc sc-${c}" style="min-width:26px;width:26px;font-size:10px;padding:${isMe?5:3}px 0;border-radius:5px;text-align:center;opacity:${opacity};${highlight?'outline:2px solid var(--acc);outline-offset:-1px':''}">
+        ${c==='am'?'早':c==='pm'?'晚':'休'}
+      </td>`;
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  // Replace the schedule wrap content
+  const schWrap = document.getElementById('sch-wrap');
+  if(schWrap){
+    schWrap.innerHTML = html;
+  } else {
+    // Fallback: find old sch-body wrapper
+    const oldWrap = document.querySelector('.sch-wrap');
+    if(oldWrap) oldWrap.innerHTML = html;
+  }
+
+  refreshScheduleUI();
+}
+function showPage(id,title) {
+  pages.forEach(p=>{
+    document.getElementById('page-'+p).classList.remove('active');
+    document.getElementById('nav-'+p).classList.remove('active');
+  });
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  document.getElementById('page-title').textContent=title;
+  // Re-read from localStorage each time salary page shown
+  if(id==='salary'&&currentIdx>=0){
+    const emps=loadEmps(); updateSalary(emps[currentIdx]);
+  }
+  if(id==='leave'){ buildLeaveHistory_staff(); }
+  if(id==='schedule'){ refreshScheduleUI(); }
+  if(id==='leave'){ buildLeaveHistory_staff(); }
+}
+
+// ── GPS 打卡核心 ──
+const GPS_KEY = 'anan_gps_config';
+function getGpsConfig(){
+  try{ return JSON.parse(localStorage.getItem(GPS_KEY))||{lat:25.0330,lng:121.5654,radius:150}; }
+  catch(e){ return {lat:25.0330,lng:121.5654,radius:150}; }
+}
+
+// Haversine 公式：計算兩點距離（公尺）
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371000,r=Math.PI/180;
+  const dLat=(lat2-lat1)*r, dLng=(lng2-lng1)*r;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+let currentPos=null, pLog=[];
+
+function initGPS(){
+  const el=document.getElementById('gps-text');
+  const dot=document.getElementById('gps-dot');
+  const addr=document.getElementById('gps-addr');
+  if(!navigator.geolocation){
+    el.textContent='此裝置不支援 GPS';dot.style.background='var(--re)';return;
+  }
+  el.textContent='正在取得 GPS 位置...';
+  navigator.geolocation.watchPosition(
+    pos=>{
+      currentPos=pos.coords;
+      const cfg=getGpsConfig();
+      const dist=Math.round(haversine(currentPos.latitude,currentPos.longitude,cfg.lat,cfg.lng));
+      const ok=dist<=cfg.radius;
+      dot.style.background=ok?'var(--gr)':'var(--am)';
+      dot.style.animation=ok?'pulse 2s ease-in-out infinite':'none';
+      el.textContent=ok
+        ?`GPS ✓ 距餐廳 ${dist}m（允許範圍內）`
+        :`距餐廳 ${dist}m（超出允許的 ${cfg.radius}m）`;
+      el.style.color=ok?'var(--gr)':'var(--am)';
+      addr.textContent=`座標 ${currentPos.latitude.toFixed(5)}, ${currentPos.longitude.toFixed(5)} · 精度 ${Math.round(currentPos.accuracy)}m`;
+      // Show/hide warn
+      const warn=document.getElementById('gps-warn');
+      if(!ok){ warn.style.display='block'; warn.textContent=`⚠️ 你目前距離餐廳 ${dist} 公尺，超出打卡範圍（${cfg.radius}m），請到餐廳後再打卡。`; }
+      else{ warn.style.display='none'; }
+    },
+    err=>{
+      dot.style.background='var(--re)';
+      el.textContent='GPS 取得失敗，請確認已開啟定位權限';
+      el.style.color='var(--re)';
+      currentPos=null;
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:5000}
+  );
+}
+
+// ── Schedule badge & update notification ──
+const SCH_TS_KEY   = 'anan_sch_updated';
+const SCH_SEEN_KEY = 'anan_sch_seen';
+
+function checkScheduleBadge(){
+  const updated = localStorage.getItem(SCH_TS_KEY);
+  const seen    = localStorage.getItem(SCH_SEEN_KEY);
+  const dot     = document.getElementById('sch-dot');
+  if(dot) dot.style.display = (updated && updated !== seen) ? 'block' : 'none';
+}
+
+function clearScheduleBadge(){
+  const updated = localStorage.getItem(SCH_TS_KEY);
+  if(updated) localStorage.setItem(SCH_SEEN_KEY, updated);
+  const dot = document.getElementById('sch-dot');
+  if(dot) dot.style.display = 'none';
+  const banner = document.getElementById('sch-new-banner');
+  if(banner) banner.style.display = 'none';
+}
+
+function refreshScheduleUI(){
+  const updated = localStorage.getItem(SCH_TS_KEY);
+  const seen    = localStorage.getItem(SCH_SEEN_KEY);
+  const isNew   = updated && updated !== seen;
+  const banner  = document.getElementById('sch-new-banner');
+  if(banner) banner.style.display = isNew ? 'block' : 'none';
+  const label   = document.getElementById('sch-updated-label');
+  if(label && updated){
+    const d = new Date(parseInt(updated));
+    label.textContent = '更新於 ' + (d.getMonth()+1) + '/' + d.getDate() + ' ' + d.toTimeString().slice(0,5);
+  } else if(label){
+    label.textContent = '尚未有班表';
+  }
+  buildScheduleForEmp(currentIdx);
+}
+
+function doPunch(type){
+  const cfg=getGpsConfig();
+  if(!currentPos){
+    showToast('⚠️ 尚未取得 GPS 位置，請稍候');return;
+  }
+  const dist=Math.round(haversine(currentPos.latitude,currentPos.longitude,cfg.lat,cfg.lng));
+  if(dist>cfg.radius){
+    showToast(`❌ 超出範圍（${dist}m），無法打卡`);return;
+  }
+  const now=new Date(),t=now.toTimeString().slice(0,5);
+  pLog.unshift({type,t,dist,lat:currentPos.latitude.toFixed(5),lng:currentPos.longitude.toFixed(5)});
+  const el=document.getElementById('punch-log');
+  el.innerHTML=pLog.slice(0,6).map(r=>
+    `<div class="crow">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${r.type==='in'?'上班打卡':'下班打卡'} ${r.t}</div>
+        <div style="font-size:11px;color:var(--tx3)">📍 距餐廳 ${r.dist}m · ${r.lat}, ${r.lng}</div>
+      </div>
+      <span class="badge ${r.type==='in'?'b-gr':'b-gy'}">${r.type==='in'?'✓ GPS':'完成'}</span>
+    </div>`
+  ).join('');
+  showToast(`${type==='in'?'上班':'下班'}打卡成功 ${t} · 距餐廳 ${dist}m`);
+}
+
+function updateClock(){
+  const now=new Date(),p=n=>String(n).padStart(2,'0');
+  document.getElementById('clock').textContent=`${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
+  const days=['日','一','二','三','四','五','六'];
+  document.getElementById('cdate').textContent=`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} · 週${days[now.getDay()]}`;
+}
+setInterval(updateClock,1000);updateClock();
+
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('ls').value=today;
+document.getElementById('le').value=today;
+
+function loadLeaveRequests(){
+  try{ return JSON.parse(localStorage.getItem('anan_leave_requests'))||[]; }
+  catch(e){ return []; }
+}
+
+function buildLeaveHistory_staff(){
+  const el = document.getElementById('leave-history');
+  if(!el) return;
+  const requests = loadLeaveRequests().filter(r => r.empIdx === currentIdx);
+  if(!requests.length){
+    el.innerHTML = '<div class="card-body" style="color:var(--tx3);font-size:13px;text-align:center;padding:16px">尚無請假紀錄</div>';
+    return;
+  }
+  el.innerHTML = [...requests].reverse().map(r => {
+    const badge = r.status==='approved'?'b-gr':r.status==='rejected'?'b-re':'b-am';
+    const label = r.status==='approved'?'已核准':r.status==='rejected'?'已退回':'審核中';
+    return `<div class="crow">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${r.leaveType} · ${r.startDate}${r.endDate!==r.startDate?' — '+r.endDate:''}</div>
+        <div style="font-size:12px;color:var(--tx2)">${r.days}天${r.note?' · '+r.note:''}</div>
+      </div>
+      <span class="badge ${badge}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+function submitLeave(){
+  const emps = loadEmps();
+  const emp  = emps[currentIdx];
+  if(!emp){ showToast('請先登入'); return; }
+  const leaveType = document.querySelector('#page-leave select.f-input')?.value || '特休假';
+  const startDate = document.getElementById('ls').value;
+  const endDate   = document.getElementById('le').value;
+  const note      = document.querySelector('#page-leave input.f-input[placeholder]')?.value || '';
+  if(!startDate||!endDate){ showToast('請選擇日期'); return; }
+  if(endDate < startDate){ showToast('結束日期不能早於開始日期'); return; }
+  const days = Math.round((new Date(endDate)-new Date(startDate))/86400000)+1;
+  const requests = loadLeaveRequests();
+  requests.push({
+    id: Date.now().toString(), empName: emp.name, empIdx: currentIdx,
+    leaveType, startDate, endDate, days, note, status:'pending',
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('anan_leave_requests', JSON.stringify(requests));
+  document.getElementById('ls').value = new Date().toISOString().split('T')[0];
+  document.getElementById('le').value = new Date().toISOString().split('T')[0];
+  buildLeaveHistory_staff();
+  showToast(`${leaveType}申請已送出，等待主管審核`);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// Init
+buildEmpSelect();
+// Listen for storage changes from admin tab
+// Cross-tab sync via storage events
+window.addEventListener('storage', e => {
+  if(e.key === STORE_KEY)              buildEmpSelect();
+  if(e.key === SCH_TS_KEY)             { checkScheduleBadge(); if(currentIdx>=0) refreshScheduleUI(); }
+  if(e.key === 'anan_leave_requests')  buildLeaveHistory_staff();
+});
+
+// Also poll every 8s to catch same-browser updates (file:// workaround)
+setInterval(() => {
+  if(currentIdx < 0) return; // not logged in
+  checkScheduleBadge();
+  buildLeaveHistory_staff();
+}, 8000);
+</script>
+</body>
+</html>
